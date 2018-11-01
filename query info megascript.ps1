@@ -27,7 +27,7 @@ $BDE = Manage-BDE -ComputerName $Computer.Name -Status C:
 		"BitLocker status" = $Status 
 		"Last Patch date" = $lastpatch.installedon
 		"Build No." = $buildno
-		"Current User" = $currentuser
+		"Current User" = $currentuser -join ','
 }
 Write-Output $Obj
 }

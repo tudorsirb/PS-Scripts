@@ -9,7 +9,7 @@ $ip = Invoke-Command -computername $computer.name -scriptblock {(Get-CimInstance
  $Obj = New-Object -TypeName PSObject -Property @{
 		"Current user" = $lastlogon -join ','
 		"Hostname" = $hostname	
-		"IP address" = $ip
+		"IP address" = $ip -join ','
 }
 Write-Output $Obj
 }

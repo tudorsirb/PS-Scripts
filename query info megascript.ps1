@@ -9,6 +9,7 @@ $bios = Get-CimInstance Win32_BIOS -ComputerName $computer.name | select SMBIOSB
 $lastlog = Get-ADComputer -Identity $computer.name -Properties *
 $lastpatch = get-hotfix -ComputerName $computer.name | sort installedon -desc | select -First 1 installedon
 $buildno = (invoke-command -ComputerName $computer.name -ScriptBlock {(Get-Item "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").GetValue('ReleaseID')})
+$uptime =  ((get-date) - (gcim -computername $computer.name Win32_OperatingSystem).LastBootUpTime).ToString("d' days, 'hh':'mm':'ss")
 $currentuser = (Get-WmiObject -Class win32_process -ComputerName $computer.name | Where-Object name -Match explorer).getowner().user
 $hostname = (invoke-command -ComputerName $computer.name -ScriptBlock {hostname})
 $BDE = Manage-BDE -ComputerName $Computer.Name -Status C: 
@@ -28,6 +29,7 @@ $BDE = Manage-BDE -ComputerName $Computer.Name -Status C:
 		"Last Patch date" = $lastpatch.installedon
 		"Build No." = $buildno
 		"Current User" = $currentuser -join ','
+		"System uptime" = $uptime -join ','
 }
 Write-Output $Obj
 }

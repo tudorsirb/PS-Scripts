@@ -12,6 +12,7 @@ $buildno = (invoke-command -ComputerName $computer.name -ScriptBlock {(Get-Item 
 $uptime =  ((get-date) - (gcim -computername $computer.name Win32_OperatingSystem).LastBootUpTime).ToString("d' days, 'hh':'mm':'ss")
 $currentuser = (Get-WmiObject -Class win32_process -ComputerName $computer.name | Where-Object name -Match explorer).getowner().user #dirty way to get current user. get the process owner of an exlorer instance. there's no oficial way to get this value, so only workarounds are available. USER NEEDS TO BE LOGGED IN FOR THIS TO WORK. The windows event method, while more reliable, take about 15 minutes/pc after applying filters.
 $hostname = (invoke-command -ComputerName $computer.name -ScriptBlock {hostname})
+$IME = gcim -computername tim-d018 Win32_PnPSignedDriver| Where-Object {$_.DeviceName -like "*Intel(R) Management Engine Interface*"} | select DriverVersion
 $BDE = Manage-BDE -ComputerName $Computer.Name -Status C: #for key recovery there's another script that invokes get-bitlockerstatus commend. unnecesarry to be included in this megascript. 
    If ($BDE -Like "*An error occurred while connecting*") {$Status = "Unable to connect"} 
    If ($BDE -Like "*Protection On*") {$Status = "Protected"} 
@@ -21,6 +22,7 @@ $BDE = Manage-BDE -ComputerName $Computer.Name -Status C: #for key recovery ther
 		"Hostname" = $hostname #hostname - output invoked on remote computer to double check if there are dns issues
 		"Manufacturer" = $bios.manufacturer
 		"Bios" =  $Bios.SMBIOSBIOSVersion
+		"Intel ME Firmware" = $IME.DriverVersion
 		"Model" = $model.model
 		"Serial" = $bios.SerialNumber
 		"Disk" = $disk.model -join ','
@@ -31,7 +33,7 @@ $BDE = Manage-BDE -ComputerName $Computer.Name -Status C: #for key recovery ther
 		"Current User" = $currentuser -join ','
 		"System uptime" = $uptime -join ','
 }
-Write-Output $Obj | select Computer, Hostname, Manufacturer, Model, Bios, Serial, Disk, "BitLocker status", "Build No.", "Last Patch date", "Current User", "System uptime", "Last Logon" # new select needed for a correct output order and to correctly pipe into export-csv
+Write-Output $Obj | select Computer, Hostname, Manufacturer, Model, Bios, "Intel ME Firmware", Serial, Disk, "BitLocker status", "Build No.", "Last Patch date", "Current User", "System uptime", "Last Logon" # new select needed for a correct output order and to correctly pipe into export-csv
 }
     else {
     }
